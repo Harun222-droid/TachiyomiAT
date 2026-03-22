@@ -17,6 +17,7 @@ import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
 import eu.kanade.tachiyomi.ui.webview.WebViewActivity
 import eu.kanade.tachiyomi.widget.ViewPagerAdapter
 import android.graphics.Bitmap
+import androidx.lifecycle.lifecycleScope
 import android.graphics.Canvas
 import eu.kanade.translation.LiveTranslator
 import eu.kanade.translation.data.TranslationFont
@@ -303,13 +304,13 @@ class PagerPageHolder(
     private fun startLiveTranslation() {
         val ssiv = pageView as? SubsamplingScaleImageView ?: return
         if (!ssiv.isReady) return
-        val scope = (context as? eu.kanade.tachiyomi.ui.reader.ReaderActivity)
-            ?.lifecycleScope ?: return
+        val readerActivity = context as? eu.kanade.tachiyomi.ui.reader.ReaderActivity ?: return
+        val scope = readerActivity.lifecycleScope
         scope.launch {
             try {
                 // SSIV'den bitmap al
-                val w = ssiv.sWidth.takeIf { it > 0 } ?: return@launch
-                val h = ssiv.sHeight.takeIf { it > 0 } ?: return@launch
+                val w: Int = ssiv.sWidth.takeIf { it > 0 } ?: return@launch
+                val h: Int = ssiv.sHeight.takeIf { it > 0 } ?: return@launch
                 val scale = minOf(1f, 1440f / maxOf(w, h))
                 val bw = (w * scale).toInt().coerceAtLeast(1)
                 val bh = (h * scale).toInt().coerceAtLeast(1)

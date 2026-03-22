@@ -19,6 +19,7 @@ import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
 import eu.kanade.tachiyomi.ui.webview.WebViewActivity
 import eu.kanade.tachiyomi.util.system.dpToPx
 import android.graphics.Bitmap
+import androidx.lifecycle.lifecycleScope
 import android.graphics.Canvas
 import eu.kanade.translation.LiveTranslator
 import eu.kanade.translation.data.TranslationFont
@@ -302,13 +303,13 @@ class WebtoonPageHolder(
 
     private fun startLiveTranslation() {
         val currentPage = page ?: return
-        val scope = (context as? eu.kanade.tachiyomi.ui.reader.ReaderActivity)
-            ?.lifecycleScope ?: return
+        val readerActivity = context as? eu.kanade.tachiyomi.ui.reader.ReaderActivity ?: return
+        val scope = readerActivity.lifecycleScope
         scope.launch {
             try {
                 // frame'den bitmap al
-                val w = frame.width.takeIf { it > 0 } ?: return@launch
-                val h = frame.height.takeIf { it > 0 } ?: return@launch
+                val w: Int = frame.width.takeIf { it > 0 } ?: return@launch
+                val h: Int = frame.height.takeIf { it > 0 } ?: return@launch
                 val scale = minOf(1f, 1440f / maxOf(w, h))
                 val bw = (w * scale).toInt().coerceAtLeast(1)
                 val bh = (h * scale).toInt().coerceAtLeast(1)
