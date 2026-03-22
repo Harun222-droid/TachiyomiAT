@@ -54,7 +54,7 @@ class WebtoonPageHolder(
     private val frame: ReaderPageImageView,
     viewer: WebtoonViewer,
     // TachiyomiAT
-    translationPreferences: TranslationPreferences = Injekt.get(),
+    private val translationPreferences: TranslationPreferences = Injekt.get(),
     private val liveTranslator: LiveTranslator = LiveTranslator(),
     private val font: TranslationFont = TranslationFont.fromPref(translationPreferences.translationFont()),
     readerPreferences: ReaderPreferences = Injekt.get(),
@@ -321,7 +321,7 @@ class WebtoonPageHolder(
                 val translation = liveTranslator.translate(bmp, pageKey)
                 bmp.recycle()
                 if (translation != null) {
-                    currentPage.translation = translation
+                    currentPage.translation = translation as eu.kanade.translation.model.PageTranslation?
                     addTranslationsView()
                     if (showTranslations) translationsView?.show()
                 }

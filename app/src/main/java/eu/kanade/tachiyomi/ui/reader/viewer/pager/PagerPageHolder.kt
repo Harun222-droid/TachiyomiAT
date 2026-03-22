@@ -50,8 +50,9 @@ class PagerPageHolder(
     val viewer: PagerViewer,
     val page: ReaderPage,
     // TachiyomiAT
-    translationPreferences: TranslationPreferences = Injekt.get(),
+    private val translationPreferences: TranslationPreferences = Injekt.get(),
     private val font: TranslationFont = TranslationFont.fromPref(translationPreferences.translationFont()),
+    private val liveTranslator: eu.kanade.translation.LiveTranslator = eu.kanade.translation.LiveTranslator(),
     readerPreferences: ReaderPreferences = Injekt.get(),
 ) : ReaderPageImageView(readerThemedContext), ViewPagerAdapter.PositionableView {
 
@@ -323,7 +324,7 @@ class PagerPageHolder(
                 val translation = liveTranslator.translate(bmp, pageKey)
                 bmp.recycle()
                 if (translation != null) {
-                    page.translation = translation
+                    page.translation = translation as eu.kanade.translation.model.PageTranslation?
                     addTranslationsView()
                     updateTranslationCoords(ssiv)
                     translationsView?.show()
