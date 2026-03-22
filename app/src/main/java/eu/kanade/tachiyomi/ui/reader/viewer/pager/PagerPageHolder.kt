@@ -319,7 +319,7 @@ class PagerPageHolder(
                 canvas.scale(scale, scale)
                 ssiv.draw(canvas)
                 // Canlı çeviri
-                val pageKey = page.imageUrl ?: page.url
+                val pageKey: String = page.imageUrl ?: page.url
                 val translation = liveTranslator.translate(bmp, pageKey)
                 bmp.recycle()
                 if (translation != null) {

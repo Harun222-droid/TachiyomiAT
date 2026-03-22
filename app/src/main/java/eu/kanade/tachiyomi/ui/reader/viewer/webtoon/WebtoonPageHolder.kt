@@ -317,7 +317,7 @@ class WebtoonPageHolder(
                 val canvas = Canvas(bmp)
                 canvas.scale(scale, scale)
                 frame.draw(canvas)
-                val pageKey = currentPage.imageUrl ?: currentPage.url
+                val pageKey: String = currentPage.imageUrl ?: currentPage.url
                 val translation = liveTranslator.translate(bmp, pageKey)
                 bmp.recycle()
                 if (translation != null) {
