@@ -106,17 +106,21 @@ class PagerTranslationsView :
             val bgHeight = (block.height + padY) * zoomScale
             val isVertical = block.angle > 85
             val bgColor = when (bgMode) {
-                1 -> Color.White.copy(alpha = bgOpacity)
-                2 -> Color.Black.copy(alpha = bgOpacity)
+                1 -> Color(1f, 1f, 1f, 1f)  // Tam beyaz
+                2 -> Color(0f, 0f, 0f, 1f)  // Tam siyah
                 3 -> Color.Transparent
                 else -> {
                     val argb = block.bgColorArgb
-                    Color(
-                        red = ((argb shr 16) and 0xFF) / 255f,
-                        green = ((argb shr 8) and 0xFF) / 255f,
-                        blue = (argb and 0xFF) / 255f,
-                        alpha = bgOpacity,
-                    )
+                    if (argb == 0 || argb == 0xFFFFFFFF.toInt()) {
+                        Color(1f, 1f, 1f, bgOpacity)
+                    } else {
+                        Color(
+                            red = ((argb shr 16) and 0xFF) / 255f,
+                            green = ((argb shr 8) and 0xFF) / 255f,
+                            blue = (argb and 0xFF) / 255f,
+                            alpha = bgOpacity,
+                        )
+                    }
                 }
             }
             if (bgMode != 3) {

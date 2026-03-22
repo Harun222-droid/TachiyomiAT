@@ -17,10 +17,10 @@ class MLKitTranslator(
         TranslatorOptions.Builder()
             .setSourceLanguage(
                 if (fromLang == TextRecognizerLanguage.AUTO) TranslateLanguage.ENGLISH
-                else fromLang.code
+                else fromLang.code,
             )
             .setTargetLanguage(
-                TranslateLanguage.fromLanguageTag(toLang.code) ?: TranslateLanguage.ENGLISH
+                TranslateLanguage.fromLanguageTag(toLang.code) ?: TranslateLanguage.TURKISH,
             )
             .build(),
     )
@@ -29,19 +29,30 @@ class MLKitTranslator(
         Tasks.await(translator.downloadModelIfNeeded(DownloadConditions.Builder().build()))
         pages.values.forEach { page ->
             page.blocks.forEach { block ->
-                // \n sorununu çöz: her satırı ayrı çevir
-                val lines = block.text.split("\n").filter { it.isNotBlank() }
-                val translatedLines = lines.map { line ->
-                    try {
-                        Tasks.await(translator.translate(line.trim()))
-                            .takeIf { it.isNotBlank() } ?: line
-                    } catch (e: Exception) {
-                        line
-                    }
+                try {
+                    // OCR karışık harf sorununu düzelt: normalize et
+                    val normalized = normalizeText(block.text)
+                    // Tüm satırları birleştir - bağlam korunur
+                    val fullText = normalized.replace("\n", " ").trim()
+                    if (fullText.isBlank()) return@forEach
+                    val translated = Tasks.await(translator.translate(fullText))
+                    block.translation = if (translated.isNotBlank()) translated else fullText
+                } catch (e: Exception) {
+                    block.translation = block.text.replace("\n", " ").trim()
                 }
-                block.translation = translatedLines.joinToString(" ")
             }
         }
+    }
+
+    /**
+     * OCR bazen karışık büyük/küçük harf okur: "wELL" → "WELL", "peINCE" → "PRINCE"
+     * Tüm metni büyük harfe çevir — manga metinleri zaten büyük harf.
+     */
+    private fun normalizeText(text: String): String {
+        return text.uppercase()
+            .replace(Regex("[^A-Z0-9\\s\\p{Punct}]"), "") // Garip karakterleri temizle
+            .trim()
+            .ifBlank { text } // Boş kalırsa orijinali döndür
     }
 
     override fun close() {

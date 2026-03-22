@@ -18,6 +18,9 @@ import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageImageView
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
 import eu.kanade.tachiyomi.ui.webview.WebViewActivity
 import eu.kanade.tachiyomi.util.system.dpToPx
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import eu.kanade.translation.LiveTranslator
 import eu.kanade.translation.data.TranslationFont
 import eu.kanade.translation.presentation.WebtoonTranslationsView
 import kotlinx.coroutines.Job
@@ -51,6 +54,7 @@ class WebtoonPageHolder(
     viewer: WebtoonViewer,
     // TachiyomiAT
     translationPreferences: TranslationPreferences = Injekt.get(),
+    private val liveTranslator: LiveTranslator = LiveTranslator(),
     private val font: TranslationFont = TranslationFont.fromPref(translationPreferences.translationFont()),
     readerPreferences: ReaderPreferences = Injekt.get(),
 ) : WebtoonBaseHolder(frame, viewer) {
@@ -286,8 +290,44 @@ class WebtoonPageHolder(
     private fun onImageDecoded() {
         progressContainer.isVisible = false
         removeErrorLayout()
-        // TachiyomiAT
-        translationsView?.show()
+        // TachiyomiAT - canlı çeviri veya mevcut çeviri göster
+        val mode = translationPreferences.translationMode().get()
+        val isLiveMode = mode == 1 || mode == 2
+        if (isLiveMode && page?.translation == null) {
+            startLiveTranslation()
+        } else {
+            translationsView?.show()
+        }
+    }
+
+    private fun startLiveTranslation() {
+        val currentPage = page ?: return
+        val scope = (context as? eu.kanade.tachiyomi.ui.reader.ReaderActivity)
+            ?.lifecycleScope ?: return
+        scope.launch {
+            try {
+                // frame'den bitmap al
+                val w = frame.width.takeIf { it > 0 } ?: return@launch
+                val h = frame.height.takeIf { it > 0 } ?: return@launch
+                val scale = minOf(1f, 1440f / maxOf(w, h))
+                val bw = (w * scale).toInt().coerceAtLeast(1)
+                val bh = (h * scale).toInt().coerceAtLeast(1)
+                val bmp = Bitmap.createBitmap(bw, bh, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bmp)
+                canvas.scale(scale, scale)
+                frame.draw(canvas)
+                val pageKey = currentPage.imageUrl ?: currentPage.url
+                val translation = liveTranslator.translate(bmp, pageKey)
+                bmp.recycle()
+                if (translation != null) {
+                    currentPage.translation = translation
+                    addTranslationsView()
+                    if (showTranslations) translationsView?.show()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("WebtoonPageHolder", "Live translate error: ${e.message}")
+            }
+        }
     }
 
     // TachiyomiAT

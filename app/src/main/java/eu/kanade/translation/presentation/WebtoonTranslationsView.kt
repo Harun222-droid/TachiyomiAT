@@ -41,17 +41,14 @@ class WebtoonTranslationsView : AbstractComposeView {
     private val bgOpacity: Float
     private val fixedTextSize: Float
 
-    constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0,
-    ) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+        super(context, attrs, defStyleAttr) {
         this.translation = PageTranslation.EMPTY
         this.font = TranslationFont.ANIME_ACE
         this.fontFamily = Font(resId = font.res, weight = FontWeight.Bold).toFontFamily()
-        this.bgMode = 0
+        this.bgMode = 1
         this.textColorMode = 0
-        this.bgOpacity = 0.92f
+        this.bgOpacity = 1f
         this.fixedTextSize = 0f
     }
 
@@ -76,12 +73,10 @@ class WebtoonTranslationsView : AbstractComposeView {
     override fun Content() {
         var size by remember { mutableStateOf(IntSize.Zero) }
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    size = it
-                    if (size == IntSize.Zero) hide() else show()
-                },
+            modifier = Modifier.fillMaxSize().onSizeChanged {
+                size = it
+                if (size == IntSize.Zero) hide() else show()
+            },
         ) {
             if (size == IntSize.Zero) return
             val scaleFactor = size.width / translation.imgWidth
@@ -101,20 +96,22 @@ class WebtoonTranslationsView : AbstractComposeView {
             val bgHeight = (block.height + padY) * scaleFactor
             val isVertical = block.angle > 85
 
-            // Arka plan rengi: ayarlara göre seç
             val bgColor = when (bgMode) {
-                1 -> Color.White.copy(alpha = bgOpacity) // Beyaz
-                2 -> Color.Black.copy(alpha = bgOpacity) // Siyah
-                3 -> Color.Transparent                   // Yok
+                1 -> Color(1f, 1f, 1f, 1f)          // Tam beyaz, opacity yok
+                2 -> Color(0f, 0f, 0f, 1f)            // Tam siyah
+                3 -> Color.Transparent                 // Saydam
                 else -> {
-                    // Auto: bloğun kendi arka plan rengi
+                    // Auto: sayfanın gerçek rengi — saydam değil
                     val argb = block.bgColorArgb
-                    Color(
-                        red = ((argb shr 16) and 0xFF) / 255f,
-                        green = ((argb shr 8) and 0xFF) / 255f,
-                        blue = (argb and 0xFF) / 255f,
-                        alpha = bgOpacity,
-                    )
+                    val r = ((argb shr 16) and 0xFF) / 255f
+                    val g = ((argb shr 8) and 0xFF) / 255f
+                    val b = (argb and 0xFF) / 255f
+                    // bgColorArgb geçerli bir renk içeriyorsa kullan, yoksa beyaz
+                    if (argb == 0 || argb == 0xFFFFFFFF.toInt()) {
+                        Color(1f, 1f, 1f, bgOpacity)
+                    } else {
+                        Color(r, g, b, bgOpacity)
+                    }
                 }
             }
 
@@ -133,14 +130,13 @@ class WebtoonTranslationsView : AbstractComposeView {
     @Composable
     fun TextBlockContent(scaleFactor: Float) {
         translation.blocks.forEach { block ->
-            // Metin rengi: ayarlara göre seç
             val textColor = when (textColorMode) {
                 1 -> Color.Black
                 2 -> Color.White
                 else -> {
-                    // Auto: bgColor'a göre kontrast
                     val argb = block.textColorArgb
-                    Color(
+                    if (argb == 0) Color.Black
+                    else Color(
                         red = ((argb shr 16) and 0xFF) / 255f,
                         green = ((argb shr 8) and 0xFF) / 255f,
                         blue = (argb and 0xFF) / 255f,

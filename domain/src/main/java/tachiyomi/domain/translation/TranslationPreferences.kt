@@ -33,4 +33,7 @@ class TranslationPreferences(
 
     // OCR
     fun ocrUpscaleEnabled() = preferenceStore.getBoolean("ocr_upscale_enabled", true)
+
+    // Çeviri modu: 0=sadece indirilmiş, 1=okurken canlı çeviri, 2=her ikisi
+    fun translationMode() = preferenceStore.getInt("translation_mode", 0)
 }

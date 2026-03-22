@@ -23,11 +23,9 @@ class GoogleTranslator(
         .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
-    // Birden fazla endpoint — ban olunca sıradakine geç
     private val clients = listOf("gtx", "at", "webapp")
     private var clientIndex = 0
 
-    // Birden fazla User-Agent — rotasyon ile ban azaltma
     private val userAgents = listOf(
         "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 Chrome/90.0.4430.91 Mobile Safari/537.36",
         "Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 Chrome/105.0.5195.136 Mobile Safari/537.36",
@@ -39,44 +37,47 @@ class GoogleTranslator(
     override suspend fun translate(pages: MutableMap<String, PageTranslation>) {
         pages.forEach { (_, pageTranslation) ->
             pageTranslation.blocks.forEach { block ->
-                // \n sorununu çöz: satırları ayrı çevir, sonra birleştir
-                val lines = block.text.split("\n").filter { it.isNotBlank() }
-                val translatedLines = lines.map { line ->
-                    translateWithRetry(line)
-                }
-                block.translation = translatedLines.joinToString("\n")
-                delay(requestDelayMs) // Ban koruması
+                // Normalize + tüm bloğu tek seferde çevir
+                val normalized = normalizeText(block.text)
+                if (normalized.isBlank()) return@forEach
+                block.translation = translateWithRetry(normalized)
+                delay(requestDelayMs)
             }
         }
+    }
+
+    /**
+     * OCR hatalarını düzelt ve bağlamı koru:
+     * - Karışık harf → uppercase
+     * - Satır sonlarını boşlukla değiştir (bağlam korunur)
+     */
+    private fun normalizeText(text: String): String {
+        return text.uppercase()
+            .replace("\n", " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
     }
 
     private suspend fun translateWithRetry(text: String): String {
         if (text.isBlank()) return text
         var lastError: Exception? = null
-
         repeat(maxRetries) { attempt ->
             try {
                 val result = doTranslate(text)
                 if (result.isNotBlank()) return result
             } catch (e: Exception) {
                 lastError = e
-                logcat { "Google translate error attempt $attempt: ${e.message}" }
-                // Endpoint ve User-Agent değiştir
                 clientIndex = (clientIndex + 1) % clients.size
                 uaIndex = (uaIndex + 1) % userAgents.size
-                delay(500L * (attempt + 1)) // Exponential backoff
+                delay(500L * (attempt + 1))
             }
         }
-        logcat { "Google translate failed after $maxRetries retries: ${lastError?.message}" }
-        return text // Başarısız olursa orijinal metni döndür
+        logcat { "Google translate failed: ${lastError?.message}" }
+        return text
     }
 
     private suspend fun doTranslate(text: String): String {
-        val encoded = try {
-            URLEncoder.encode(text, "utf-8")
-        } catch (e: Exception) {
-            URLEncoder.encode(text, "UTF-8")
-        }
+        val encoded = URLEncoder.encode(text, "utf-8")
         val client = clients[clientIndex]
         val token = calculateToken(text)
         val url = "https://translate.google.com/translate_a/single" +
@@ -87,32 +88,23 @@ class GoogleTranslator(
             .url(url)
             .header("User-Agent", userAgents[uaIndex])
             .header("Accept", "*/*")
-            .header("Accept-Language", "en-US,en;q=0.9")
             .header("Referer", "https://translate.google.com/")
             .build()
 
         val response = okHttpClient.newCall(request).await()
-        if (!response.isSuccessful) {
-            throw Exception("HTTP ${response.code}")
-        }
-        val body = response.body.string()
+        if (!response.isSuccessful) throw Exception("HTTP ${response.code}")
 
         return try {
-            val arr = JSONArray(body)
+            val arr = JSONArray(response.body.string())
             val sb = StringBuilder()
             val translations = arr.getJSONArray(0)
             for (i in 0 until translations.length()) {
-                val part = translations.optJSONArray(i)
-                if (part != null) {
-                    val translated = part.optString(0)
-                    if (translated.isNotEmpty() && translated != "null") {
-                        sb.append(translated)
-                    }
-                }
+                val part = translations.optJSONArray(i) ?: continue
+                val t = part.optString(0)
+                if (t.isNotEmpty() && t != "null") sb.append(t)
             }
             sb.toString().trim()
         } catch (e: Exception) {
-            logcat { "Google parse error: ${e.message}, body: ${body.take(200)}" }
             ""
         }
     }

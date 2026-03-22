@@ -72,6 +72,8 @@ import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsScreenModel
 import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
 import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
+import eu.kanade.tachiyomi.ui.reader.viewer.webtoon.WebtoonViewer
+import eu.kanade.tachiyomi.ui.reader.viewer.pager.PagerViewer
 import eu.kanade.tachiyomi.ui.webview.WebViewActivity
 import eu.kanade.tachiyomi.util.system.hasDisplayCutout
 import eu.kanade.tachiyomi.util.system.isNightMode
@@ -551,6 +553,15 @@ class ReaderActivity : BaseActivity() {
         binding.readerContainer.addView(loadingIndicator)
 
         startPostponedEnterTransition()
+
+        // Auto scroll - ayar açıksa viewer yüklenince başlat
+        val translationPrefs = uy.kohesive.injekt.Injekt.get<tachiyomi.domain.translation.TranslationPreferences>()
+        if (translationPrefs.autoScrollEnabled().get()) {
+            when (newViewer) {
+                is WebtoonViewer -> newViewer.startAutoScroll()
+                is PagerViewer -> newViewer.startAutoPage()
+            }
+        }
     }
 
     private fun openMangaScreen() {

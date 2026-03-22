@@ -26,6 +26,15 @@ object SettingsTranslationScreen : SearchableSettings {
     override fun getPreferences(): List<Preference> {
         val p = remember { Injekt.get<TranslationPreferences>() }
         return listOf(
+            Preference.PreferenceItem.ListPreference(
+                pref = p.translationMode(),
+                title = stringResource(ATMR.strings.pref_translation_mode),
+                entries = mapOf(
+                    0 to "Sadece indirilen bölümler",
+                    1 to "Canlı (okurken çevir)",
+                    2 to "Her ikisi (canlı + indirilmiş)",
+                ).toImmutableMap(),
+            ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = p.autoTranslateAfterDownload(),
                 title = stringResource(ATMR.strings.pref_translate_after_downloading),
@@ -91,30 +100,30 @@ object SettingsTranslationScreen : SearchableSettings {
                 pref = p.translationBgMode(),
                 title = stringResource(ATMR.strings.pref_bg_mode),
                 entries = mapOf(
-                    0 to "Auto (match page color)",
-                    1 to "White",
-                    2 to "Black",
-                    3 to "None (transparent)",
+                    0 to "Otomatik (sayfa rengi)",
+                    1 to "Beyaz",
+                    2 to "Siyah",
+                    3 to "Yok (saydam)",
                 ).toImmutableMap(),
             ),
             Preference.PreferenceItem.ListPreference(
                 pref = p.translationTextColor(),
                 title = stringResource(ATMR.strings.pref_text_color),
                 entries = mapOf(
-                    0 to "Auto",
-                    1 to "Black",
-                    2 to "White",
+                    0 to "Otomatik",
+                    1 to "Siyah",
+                    2 to "Beyaz",
                 ).toImmutableMap(),
             ),
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.translationBgOpacity(),
                 title = stringResource(ATMR.strings.pref_bg_opacity),
-                subtitle = "0.0 to 1.0  (default: 0.92)",
+                subtitle = "0.0 ile 1.0 arası (varsayılan: 0.92)",
             ),
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.translationTextSize(),
                 title = stringResource(ATMR.strings.pref_text_size),
-                subtitle = "0 = auto fit, or set fixed size (e.g. 14)",
+                subtitle = "0 = otomatik, ya da sabit boyut girin (örn: 14)",
             ),
             Preference.PreferenceItem.SwitchPreference(
                 pref = p.translationShowOriginal(),
@@ -134,12 +143,12 @@ object SettingsTranslationScreen : SearchableSettings {
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.autoScrollInterval(),
                 title = stringResource(ATMR.strings.pref_autoscroll_interval),
-                subtitle = "Seconds per page (default: 5)",
+                subtitle = "Saniye/sayfa (varsayılan: 5)",
             ),
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.autoScrollSpeed(),
                 title = stringResource(ATMR.strings.pref_autoscroll_speed),
-                subtitle = "Scroll speed in px/frame (default: 2)",
+                subtitle = "Kaydırma hızı px/kare (varsayılan: 2)",
             ),
         ),
     )
@@ -163,12 +172,12 @@ object SettingsTranslationScreen : SearchableSettings {
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.googleTranslateDelay(),
                 title = stringResource(ATMR.strings.pref_google_delay),
-                subtitle = "ms between requests to avoid ban (default: 300)",
+                subtitle = "Banlamamak için istek arası bekleme ms (varsayılan: 300)",
             ),
             Preference.PreferenceItem.EditTextPreference(
                 pref = p.googleTranslateMaxRetry(),
                 title = stringResource(ATMR.strings.pref_google_retry),
-                subtitle = "Retries on failure (default: 3)",
+                subtitle = "Hata durumunda tekrar sayısı (varsayılan: 3)",
             ),
         ),
     )

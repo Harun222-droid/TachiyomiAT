@@ -1,54 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Mevcut -->
-    <string name="pref_category_translations">Translations</string>
-    <string name="pref_translation_summary">Automatic Translations</string>
-    <string name="manga_translate">Translate</string>
-    <string name="error_mlkit_language_unsupported">MLKit doesn\'t support this language</string>
-    <string name="pref_show_translations">Show Translations</string>
-    <string name="pref_translate_after_downloading">Translate After Downloading</string>
-    <string name="pref_reader_font">Reader Font</string>
-    <string name="pref_group_setup">Translation Setup</string>
-    <string name="pref_translate_from">Translate From</string>
-    <string name="pref_translate_to">Translate To</string>
-    <string name="pref_group_engine">Translator</string>
-    <string name="pref_translator_engine">Translator Engine</string>
-    <string name="pref_sub_engine_api_key">Your Secret Key</string>
-    <string name="pref_engine_api_key">LLM Api Key</string>
-    <string name="pref_group_advanced">Advanced Settings</string>
-    <string name="pref_engine_model">LLM Model</string>
-    <string name="pref_engine_temperature">LLM Temperature</string>
-    <string name="pref_engine_max_output">LLM Max Output Token Count</string>
+    <string name="pref_category_translations">Çeviri</string>
+    <string name="pref_translation_summary">Otomatik Çeviri</string>
+    <string name="manga_translate">Çevir</string>
+    <string name="error_mlkit_language_unsupported">MLKit bu dili desteklemiyor</string>
+    <string name="pref_show_translations">Çevirileri Göster</string>
+    <string name="pref_translate_after_downloading">İndirdikten Sonra Çevir</string>
+    <string name="pref_reader_font">Okuyucu Yazı Tipi</string>
+    <string name="pref_group_setup">Çeviri Kurulumu</string>
+    <string name="pref_translate_from">Kaynak Dil</string>
+    <string name="pref_translate_to">Hedef Dil</string>
+    <string name="pref_group_engine">Çeviri Motoru</string>
+    <string name="pref_translator_engine">Motor Seçimi</string>
+    <string name="pref_sub_engine_api_key">Gizli Anahtarınız</string>
+    <string name="pref_engine_api_key">API Anahtarı</string>
+    <string name="pref_group_advanced">Gelişmiş Ayarlar</string>
+    <string name="pref_engine_model">Model Adı</string>
+    <string name="pref_engine_temperature">Sıcaklık (Temperature)</string>
+    <string name="pref_engine_max_output">Maks. Çıktı Token Sayısı</string>
 
-    <!-- YENİ: Görüntüleme -->
-    <string name="pref_group_display">Display Settings</string>
-    <string name="pref_text_size">Text Size (0 = Auto)</string>
-    <string name="pref_text_size_sub">Set 0 for automatic sizing</string>
-    <string name="pref_bg_mode">Background Mode</string>
-    <string name="pref_bg_mode_auto">Auto (match page)</string>
-    <string name="pref_bg_mode_white">White</string>
-    <string name="pref_bg_mode_black">Black</string>
-    <string name="pref_bg_mode_none">None (transparent)</string>
-    <string name="pref_bg_opacity">Background Opacity</string>
-    <string name="pref_text_color">Text Color</string>
-    <string name="pref_text_color_auto">Auto</string>
-    <string name="pref_text_color_black">Black</string>
-    <string name="pref_text_color_white">White</string>
-    <string name="pref_show_original">Show Original Text</string>
+    <!-- Çeviri Modu -->
+    <string name="pref_translation_mode">Çeviri Modu</string>
 
-    <!-- YENİ: Otomatik kaydırma -->
-    <string name="pref_group_autoscroll">Auto Scroll</string>
-    <string name="pref_autoscroll_enabled">Enable Auto Scroll</string>
-    <string name="pref_autoscroll_interval">Page Interval (seconds)</string>
-    <string name="pref_autoscroll_speed">Scroll Speed</string>
+    <!-- Görüntüleme -->
+    <string name="pref_group_display">Görüntüleme Ayarları</string>
+    <string name="pref_text_size">Yazı Boyutu (0 = Otomatik)</string>
+    <string name="pref_text_size_sub">Otomatik boyut için 0 girin</string>
+    <string name="pref_bg_mode">Arka Plan Modu</string>
+    <string name="pref_bg_mode_auto">Otomatik (sayfa rengi)</string>
+    <string name="pref_bg_mode_white">Beyaz</string>
+    <string name="pref_bg_mode_black">Siyah</string>
+    <string name="pref_bg_mode_none">Yok (saydam)</string>
+    <string name="pref_bg_opacity">Arka Plan Opaklığı</string>
+    <string name="pref_text_color">Metin Rengi</string>
+    <string name="pref_text_color_auto">Otomatik</string>
+    <string name="pref_text_color_black">Siyah</string>
+    <string name="pref_text_color_white">Beyaz</string>
+    <string name="pref_show_original">Orijinal Metni Göster</string>
 
-    <!-- YENİ: Google çeviri -->
-    <string name="pref_group_google">Google Translate Settings</string>
-    <string name="pref_google_delay">Request Delay (ms)</string>
-    <string name="pref_google_retry">Max Retries</string>
+    <!-- Otomatik Kaydırma -->
+    <string name="pref_group_autoscroll">Otomatik Kaydırma</string>
+    <string name="pref_autoscroll_enabled">Otomatik Kaydırmayı Etkinleştir</string>
+    <string name="pref_autoscroll_interval">Sayfa Aralığı (saniye)</string>
+    <string name="pref_autoscroll_speed">Kaydırma Hızı</string>
 
-    <!-- YENİ: OCR -->
-    <string name="pref_group_ocr">OCR Settings</string>
-    <string name="pref_ocr_upscale">Upscale Small Images</string>
-    <string name="pref_ocr_upscale_sub">Improves accuracy for low-res pages</string>
+    <!-- Google Çeviri -->
+    <string name="pref_group_google">Google Çeviri Ayarları</string>
+    <string name="pref_google_delay">İstek Gecikmesi (ms)</string>
+    <string name="pref_google_retry">Maks. Tekrar Sayısı</string>
+
+    <!-- OCR -->
+    <string name="pref_group_ocr">OCR (Metin Tanıma) Ayarları</string>
+    <string name="pref_ocr_upscale">Küçük Görüntüleri Büyüt</string>
+    <string name="pref_ocr_upscale_sub">Düşük çözünürlüklü sayfalarda doğruluğu artırır</string>
 </resources>
